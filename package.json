@@ -1,0 +1,31 @@
+{
+  "name": "game-release-evaluator",
+  "version": "1.0.0",
+  "description": "ゲーム新発売・アップデート情報を収集してAIで評価するシステム",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "collect": "node scripts/collect-and-evaluate.js",
+    "migrate": "node scripts/migrate.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["game", "release", "evaluation", "scraping", "ai"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.2",
+    "cheerio": "^1.0.0-rc.12",
+    "openai": "^4.20.1",
+    "google-trends-api": "^5.0.2",
+    "node-cron": "^3.0.3",
+    "dayjs": "^1.11.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ゲームリリース評価システム</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>
+                <i class="fas fa-gamepad"></i>
+                ゲームリリース評価システム
+            </h1>
+            <p class="subtitle">新作・アップデートゲームのAI評価ランキング</p>
+        </header>
+
+        <div class="controls">
+            <div class="filter-group">
+                <label for="gameTypeFilter">
+                    <i class="fas fa-filter"></i> カテゴリ:
+                </label>
+                <select id="gameTypeFilter" class="filter-select">
+                    <option value="">すべて</option>
+                    <option value="consumer">コンシューマーゲーム</option>
+                    <option value="social">ソーシャルゲーム</option>
+                </select>
+            </div>
+
+            <button id="refreshBtn" class="btn btn-primary">
+                <i class="fas fa-sync-alt"></i> 更新
+            </button>
+        </div>
+
+        <div class="stats-container" id="statsContainer">
+            <!-- 統計情報が表示されます -->
+        </div>
+
+        <div class="rankings-container">
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> 読み込み中...
+            </div>
+
+            <div class="ranking-header">
+                <h2>
+                    <i class="fas fa-trophy"></i>
+                    おすすめランキング
+                </h2>
+                <div id="evaluationDate" class="evaluation-date"></div>
+            </div>
+
+            <div id="rankingsContent" class="rankings-list">
+                <!-- ランキングが表示されます -->
+            </div>
+
+            <div id="noData" class="no-data" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>評価データがありません</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 Game Release Evaluator | Powered by OpenAI & RAWG API</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
