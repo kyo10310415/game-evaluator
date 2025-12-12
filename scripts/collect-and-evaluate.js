@@ -115,12 +115,12 @@ async function main() {
     
     if (consumerRanking.length > 0) {
       await slackNotifier.sendRanking(consumerRanking, evaluationDate, 'consumer');
-      await slackNotifier.delay(1000);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     
     if (socialRanking.length > 0) {
       await slackNotifier.sendRanking(socialRanking, evaluationDate, 'social');
-      await slackNotifier.delay(1000);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     
     // 統計情報送信
