@@ -204,7 +204,7 @@ export class SlackNotifier {
                     `*総評価数:* ${stats.total_games}件\n` +
                     `*コンシューマー:* ${stats.consumer_count}件\n` +
                     `*ソーシャル:* ${stats.social_count}件\n` +
-                    `*平均スコア:* ${stats.average_score?.toFixed(2)}/10`
+                    `*平均スコア:* ${parseFloat(stats.average_score || 0).toFixed(2)}/10`
             }
           }
         ]
