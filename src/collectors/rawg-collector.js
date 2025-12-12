@@ -17,12 +17,12 @@ export class RawgCollector {
   }
 
   /**
-   * 今後1ヶ月以内にリリース予定のゲームを取得
+   * 今後3ヶ月以内にリリース予定のゲームを取得
    */
   async getUpcomingGames(platforms = 'pc,playstation5,xbox-series-x,nintendo-switch') {
     try {
       const today = dayjs();
-      const oneMonthLater = today.add(1, 'month');
+      const oneMonthLater = today.add(3, 'month');
       
       console.log(`Fetching upcoming games from RAWG (${today.format('YYYY-MM-DD')} to ${oneMonthLater.format('YYYY-MM-DD')})...`);
       
@@ -47,12 +47,12 @@ export class RawgCollector {
   }
 
   /**
-   * 過去1週間以内にリリースされたゲームを取得
+   * 過去2ヶ月以内にリリースされたゲームを取得
    */
   async getRecentlyReleasedGames(platforms = 'pc,playstation5,xbox-series-x,nintendo-switch') {
     try {
       const today = dayjs();
-      const oneWeekAgo = today.subtract(7, 'day');
+      const oneWeekAgo = today.subtract(2, 'month');
       
       console.log(`Fetching recently released games from RAWG (${oneWeekAgo.format('YYYY-MM-DD')} to ${today.format('YYYY-MM-DD')})...`);
       
