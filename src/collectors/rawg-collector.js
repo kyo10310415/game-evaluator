@@ -31,7 +31,8 @@ export class RawgCollector {
         params: {
           key: this.apiKey,
           dates: `${today.format('YYYY-MM-DD')},${oneMonthLater.format('YYYY-MM-DD')}`,
-          platforms: platforms,
+          // platformsフィルタを一時的に削除（デバッグ用）
+          // platforms: platforms,
           ordering: '-added',
           page_size: 40
         }
@@ -62,7 +63,8 @@ export class RawgCollector {
         params: {
           key: this.apiKey,
           dates: `${oneWeekAgo.format('YYYY-MM-DD')},${today.format('YYYY-MM-DD')}`,
-          platforms: platforms,
+          // platformsフィルタを一時的に削除（デバッグ用）
+          // platforms: platforms,
           ordering: '-released',
           page_size: 40
         }
