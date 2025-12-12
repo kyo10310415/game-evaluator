@@ -32,7 +32,7 @@
 
 **取得したキー:**
 ```
-RAWG_API_KEY=ここにコピーしたキーを保存
+RAWG_API_KEY=f797d2392a0e4df0adfe80035cc51444
 ```
 
 ### 1.2 OpenAI API キーの取得
@@ -44,7 +44,7 @@ RAWG_API_KEY=ここにコピーしたキーを保存
 
 **取得したキー:**
 ```
-OPENAI_API_KEY=sk-ここにコピーしたキーを保存
+OPENAI_API_KEY=sk-proj-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ```
 
 **料金目安:**
@@ -65,7 +65,7 @@ OPENAI_API_KEY=sk-ここにコピーしたキーを保存
 
 **取得したURL:**
 ```
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
 ```
 
 ---
