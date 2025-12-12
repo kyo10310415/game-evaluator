@@ -38,13 +38,26 @@ async function main() {
     
     console.log(`Total games collected: ${allGames.length}`);
     
+    // メタクリティックスコア60以上でフィルタリング
+    const filteredGames = allGames.filter(game => {
+      // メタクリティックスコアがない場合は対象に含める（新作の可能性があるため）
+      return !game.metacritic_score || game.metacritic_score >= 60;
+    });
+    
+    console.log(`Games after Metacritic filter (≥60 or no score): ${filteredGames.length}`);
+    
+    if (filteredGames.length === 0) {
+      console.log('No games passed the Metacritic filter');
+      return;
+    }
+    
     // 2. トレンドスコア取得
     console.log('\n--- Step 2: Fetching trend scores ---');
     const trendsCollector = new TrendsCollector();
     const trendScores = {};
     
     // 主要なゲームのみトレンドスコアを取得（API制限対策）
-    const topGames = allGames.slice(0, 20);
+    const topGames = filteredGames.slice(0, 20);
     for (const game of topGames) {
       try {
         trendScores[game.title] = await trendsCollector.calculateGameTrendScore(game);
@@ -60,7 +73,7 @@ async function main() {
     const aiEvaluator = new AIEvaluator();
     const evaluations = [];
     
-    for (const game of allGames) {
+    for (const game of filteredGames) {
       try {
         // ゲームをデータベースに保存
         const gameId = await GameModel.upsertGame(game);
