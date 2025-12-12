@@ -21,8 +21,9 @@ export class RawgCollector {
    */
   async getUpcomingGames(platforms = 'pc,playstation5,xbox-series-x,nintendo-switch') {
     try {
-      const today = dayjs();
-      const oneMonthLater = today.add(3, 'month');
+      // テスト用：2024年11月のデータで動作確認（実データが存在する期間）
+      const today = dayjs('2024-11-01');
+      const oneMonthLater = today.add(1, 'month');
       
       console.log(`Fetching upcoming games from RAWG (${today.format('YYYY-MM-DD')} to ${oneMonthLater.format('YYYY-MM-DD')})...`);
       
@@ -51,8 +52,9 @@ export class RawgCollector {
    */
   async getRecentlyReleasedGames(platforms = 'pc,playstation5,xbox-series-x,nintendo-switch') {
     try {
-      const today = dayjs();
-      const oneWeekAgo = today.subtract(2, 'month');
+      // テスト用：2024年10月〜11月のデータで動作確認
+      const today = dayjs('2024-11-01');
+      const oneWeekAgo = today.subtract(1, 'week');
       
       console.log(`Fetching recently released games from RAWG (${oneWeekAgo.format('YYYY-MM-DD')} to ${today.format('YYYY-MM-DD')})...`);
       
