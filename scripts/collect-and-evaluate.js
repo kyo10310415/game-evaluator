@@ -91,8 +91,8 @@ async function main() {
           evaluation = await aiEvaluator.evaluateSocialGame(game, trendScore);
         }
         
-        // レート制限対策：各評価後に1秒待機
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // レート制限対策：各評価後に2秒待機（OpenAI API Tier 1: 3 RPM制限対策）
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // 評価を保存
         await EvaluationModel.saveEvaluation(

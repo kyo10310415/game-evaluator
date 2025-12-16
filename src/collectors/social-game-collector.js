@@ -24,6 +24,7 @@ export class SocialGameCollector {
 
       for (const category of this.targetGenres) {
         try {
+          console.log(`Fetching category: ${category}`);
           const games = await gplay.list({
             category: category,
             collection: gplay.collection.NEW_FREE,

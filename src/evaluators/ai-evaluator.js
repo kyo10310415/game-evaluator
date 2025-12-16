@@ -45,6 +45,12 @@ export class AIEvaluator {
       return this.normalizeEvaluation(evaluation);
     } catch (error) {
       console.error(`Error evaluating game "${gameData.title}":`, error.message);
+      if (error.response) {
+        console.error('OpenAI API Error Details:', {
+          status: error.response.status,
+          data: error.response.data
+        });
+      }
       return this.getDefaultEvaluation();
     }
   }

@@ -37,7 +37,7 @@ app.get('/api/health', (req, res) => {
 app.get('/api/rankings/latest', async (req, res) => {
   try {
     const gameType = req.query.type || null; // 'consumer', 'social', or null for all
-    const limit = parseInt(req.query.limit) || 50;
+    const limit = parseInt(req.query.limit) || 10;
     
     const latestDate = await EvaluationModel.getLatestEvaluationDate();
     
