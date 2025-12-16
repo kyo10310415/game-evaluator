@@ -10,6 +10,7 @@ ALTER TABLE game_updates ADD COLUMN IF NOT EXISTS steam_app_id INTEGER;
 ALTER TABLE game_updates ADD COLUMN IF NOT EXISTS google_play_id VARCHAR(255);
 
 -- UNIQUE制約追加（Steam/Google Play ID用）
+-- Note: These partial indexes will be replaced by full constraints in 004_fix_unique_constraints.sql
 CREATE UNIQUE INDEX IF NOT EXISTS unique_steam_app_id ON games(steam_app_id) WHERE steam_app_id IS NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS unique_google_play_id ON games(google_play_id) WHERE google_play_id IS NOT NULL;
 
