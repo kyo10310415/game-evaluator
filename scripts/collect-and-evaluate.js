@@ -4,6 +4,7 @@ import { RawgCollector } from '../src/collectors/rawg-collector.js';
 import { SteamCollector } from '../src/collectors/steam-collector.js';
 import { SocialGameCollector } from '../src/collectors/social-game-collector.js';
 import { TrendsCollector } from '../src/collectors/trends-collector.js';
+import { AlternativeTrendsCollector } from '../src/collectors/alternative-trends-collector.js';
 import { GameScraper } from '../src/collectors/scraper.js';
 import { AIEvaluator } from '../src/evaluators/ai-evaluator.js';
 import { GameModel } from '../src/models/game-model.js';
@@ -53,9 +54,9 @@ async function main() {
       return;
     }
     
-    // 2. トレンドスコア取得
+    // 2. トレンドスコア取得（Wikipedia + Reddit使用）
     console.log('\n--- Step 2: Fetching trend scores ---');
-    const trendsCollector = new TrendsCollector();
+    const trendsCollector = new AlternativeTrendsCollector();
     const trendScores = {};
     
     // 主要なゲームのみトレンドスコアを取得（API制限対策）
@@ -69,12 +70,13 @@ async function main() {
     const topGames = [...gamesWithScore.slice(0, scoreCount), ...gamesWithoutScore.slice(0, noScoreCount)];
     
     console.log(`Selecting top ${topGames.length} games for trend analysis (out of ${filteredGames.length} total)`);
+    console.log('Using Wikipedia page views + Reddit mentions for trend data');
     
     for (const game of topGames) {
       try {
         trendScores[game.title] = await trendsCollector.calculateGameTrendScore(game);
-        // Google Trendsレート制限対策: 5秒待機に延長
-        await trendsCollector.delay(5000);
+        // Wikipedia API制限対策: 1秒待機（Google Trendsより緩い）
+        await trendsCollector.delay(1000);
       } catch (error) {
         console.error(`Error fetching trend for "${game.title}":`, error.message);
         trendScores[game.title] = 0;
