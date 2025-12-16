@@ -156,9 +156,10 @@ app.post('/api/run-evaluation', (req, res) => {
 
   // バックグラウンドでスクリプト実行
   const scriptPath = path.join(__dirname, '../scripts/collect-and-evaluate.js');
+  console.log(`Starting evaluation process: ${scriptPath}`);
   runningProcess = spawn('node', [scriptPath], {
     detached: true,
-    stdio: 'ignore'
+    stdio: 'inherit' // ログを表示
   });
 
   runningProcess.unref();
