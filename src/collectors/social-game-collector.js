@@ -34,8 +34,22 @@ export class SocialGameCollector {
           });
 
           const filtered = games
-            .filter(game => this.isSocialGame(game))
-            .map(game => this.formatGameData(game, 'new_release'))
+            .filter(game => {
+              try {
+                return this.isSocialGame(game);
+              } catch (e) {
+                console.error(`[getNewReleases] Error in isSocialGame for ${game?.appId || 'unknown'}:`, e.message);
+                return false;
+              }
+            })
+            .map(game => {
+              try {
+                return this.formatGameData(game, 'new_release');
+              } catch (e) {
+                console.error(`[getNewReleases] Error in formatGameData for ${game?.appId || 'unknown'}:`, e.message);
+                return null;
+              }
+            })
             .filter(game => game !== null);
 
           allGames.push(...filtered);
@@ -117,7 +131,8 @@ export class SocialGameCollector {
               // レート制限対策
               await this.delay(500);
             } catch (error) {
-              console.error(`Error fetching details for ${game.appId}:`, error.message);
+              console.error(`[getRecentlyUpdated] Error fetching details for ${game.appId}:`, error.message);
+              console.error(`[getRecentlyUpdated] Error type:`, error.name, '| Stack:', error.stack?.split('\n')[0]);
             }
           }
           
@@ -145,9 +160,15 @@ export class SocialGameCollector {
 
     // 安全な文字列変換
     const safeString = (value) => {
-      if (!value) return '';
-      if (Array.isArray(value)) return value.join(' ');
-      return String(value);
+      try {
+        if (!value) return '';
+        if (Array.isArray(value)) return value.join(' ');
+        if (typeof value === 'object') return JSON.stringify(value);
+        return String(value);
+      } catch (e) {
+        console.warn('Error in isSocialGame.safeString:', e);
+        return '';
+      }
     };
     
     const title = safeString(game.title).toLowerCase();
@@ -209,11 +230,19 @@ export class SocialGameCollector {
     
     // 配列を安全に文字列に変換
     const safeArrayToString = (value) => {
-      if (!value) return null;
-      if (Array.isArray(value)) {
-        return value.length > 0 ? value.join(', ') : null;
+      try {
+        if (!value) return null;
+        if (Array.isArray(value)) {
+          return value.length > 0 ? value.join(', ') : null;
+        }
+        if (typeof value === 'object') {
+          return JSON.stringify(value);
+        }
+        return String(value);
+      } catch (e) {
+        console.warn('Error in safeArrayToString:', e);
+        return null;
       }
-      return String(value);
     };
     
     // スクリーンショットを安全に取得
@@ -254,8 +283,19 @@ export class SocialGameCollector {
     try {
       if (!text) return null;
       
+      // オブジェクトの場合はJSON文字列化
+      if (typeof text === 'object') {
+        text = JSON.stringify(text);
+      }
+      
       // 安全な文字列変換
       const safeText = String(text);
+      
+      // 型チェック: stringでない場合は早期リターン
+      if (typeof safeText !== 'string') {
+        console.warn('cleanDescription: safeText is not a string:', typeof safeText);
+        return null;
+      }
       
       // HTMLタグを削除
       let cleaned = safeText.replace(/<[^>]*>/g, '');
@@ -263,14 +303,14 @@ export class SocialGameCollector {
       // 改行を整理
       cleaned = cleaned.replace(/\n+/g, ' ').trim();
       
-      // 最大500文字に制限
+      // 最大500文字に制限（再度型チェック）
       if (cleaned && typeof cleaned === 'string' && cleaned.length > 500) {
         cleaned = cleaned.substring(0, 497) + '...';
       }
       
       return cleaned || null;
     } catch (error) {
-      console.error('Error in cleanDescription:', error.message);
+      console.error('Error in cleanDescription:', error.message, 'Input type:', typeof text);
       return null;
     }
   }
