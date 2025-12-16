@@ -59,16 +59,25 @@ async function main() {
     const trendScores = {};
     
     // 主要なゲームのみトレンドスコアを取得（API制限対策）
-    const topGames = filteredGames.slice(0, 20);
+    // Metacriticスコアがあるものを優先して上位20件を選択
+    const gamesWithScore = filteredGames.filter(g => g.metacritic_score).sort((a, b) => b.metacritic_score - a.metacritic_score);
+    const gamesWithoutScore = filteredGames.filter(g => !g.metacritic_score);
+    const topGames = [...gamesWithScore.slice(0, 15), ...gamesWithoutScore.slice(0, 5)];
+    
+    console.log(`Selecting top ${topGames.length} games for trend analysis (out of ${filteredGames.length} total)`);
+    
     for (const game of topGames) {
       try {
         trendScores[game.title] = await trendsCollector.calculateGameTrendScore(game);
-        await trendsCollector.delay(2000);
+        // Google Trendsレート制限対策: 5秒待機に延長
+        await trendsCollector.delay(5000);
       } catch (error) {
         console.error(`Error fetching trend for "${game.title}":`, error.message);
         trendScores[game.title] = 0;
       }
     }
+    
+    console.log(`✓ Trend scores fetched for ${Object.keys(trendScores).length} games`);
     
     // 3. AI評価
     console.log('\n--- Step 3: Evaluating games with AI ---');
@@ -109,9 +118,6 @@ async function main() {
         });
         
         console.log(`✓ Evaluated: ${game.title} (Score: ${evaluation.total_score}/10)`);
-        
-        // APIレート制限対策
-        await aiEvaluator.delay(1000);
       } catch (error) {
         console.error(`Error evaluating "${game.title}":`, error.message);
       }
