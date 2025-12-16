@@ -225,18 +225,21 @@ export class SocialGameCollector {
   cleanDescription(text) {
     if (!text) return null;
     
+    // 安全な文字列変換
+    const safeText = String(text);
+    
     // HTMLタグを削除
-    let cleaned = text.replace(/<[^>]*>/g, '');
+    let cleaned = safeText.replace(/<[^>]*>/g, '');
     
     // 改行を整理
     cleaned = cleaned.replace(/\n+/g, ' ').trim();
     
     // 最大500文字に制限
-    if (cleaned.length > 500) {
+    if (cleaned && cleaned.length > 500) {
       cleaned = cleaned.substring(0, 497) + '...';
     }
     
-    return cleaned;
+    return cleaned || null;
   }
 
   /**
