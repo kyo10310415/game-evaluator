@@ -62,7 +62,11 @@ async function main() {
     // Metacriticスコアがあるものを優先して上位20件を選択
     const gamesWithScore = filteredGames.filter(g => g.metacritic_score).sort((a, b) => b.metacritic_score - a.metacritic_score);
     const gamesWithoutScore = filteredGames.filter(g => !g.metacritic_score);
-    const topGames = [...gamesWithScore.slice(0, 15), ...gamesWithoutScore.slice(0, 5)];
+    
+    // Metacriticスコアがある場合は15件、ない場合は全て新作とみなして20件取得
+    const scoreCount = Math.min(gamesWithScore.length, 15);
+    const noScoreCount = Math.min(gamesWithoutScore.length, 20 - scoreCount);
+    const topGames = [...gamesWithScore.slice(0, scoreCount), ...gamesWithoutScore.slice(0, noScoreCount)];
     
     console.log(`Selecting top ${topGames.length} games for trend analysis (out of ${filteredGames.length} total)`);
     

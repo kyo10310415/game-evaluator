@@ -136,8 +136,15 @@ export class SocialGameCollector {
   isSocialGame(game) {
     if (!game) return false;
 
-    const title = String(game.title || '').toLowerCase();
-    const description = String(game.description || '').toLowerCase();
+    // 安全な文字列変換
+    const safeString = (value) => {
+      if (!value) return '';
+      if (Array.isArray(value)) return value.join(' ');
+      return String(value);
+    };
+    
+    const title = safeString(game.title).toLowerCase();
+    const description = safeString(game.description).toLowerCase();
     
     // ソシャゲの特徴キーワード
     const socialKeywords = [
