@@ -26,6 +26,12 @@ export class TrendsCollector {
         geo: this.geo
       });
       
+      // HTML応答のチェック（レート制限エラー）
+      if (typeof result === 'string' && result.trim().startsWith('<')) {
+        console.warn(`Google Trends rate limit or error for "${keyword}", skipping`);
+        return 0;
+      }
+      
       const data = JSON.parse(result);
       
       if (!data.default || !data.default.timelineData || data.default.timelineData.length === 0) {
@@ -42,7 +48,11 @@ export class TrendsCollector {
       
       return averageScore;
     } catch (error) {
-      console.error(`Error fetching trends for "${keyword}":`, error.message);
+      if (error.message && error.message.includes('Unexpected token')) {
+        console.warn(`Google Trends parse error for "${keyword}" (rate limit?), returning 0`);
+      } else {
+        console.error(`Error fetching trends for "${keyword}":`, error.message);
+      }
       return 0;
     }
   }

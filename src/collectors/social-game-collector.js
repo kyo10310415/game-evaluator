@@ -79,9 +79,17 @@ export class SocialGameCollector {
           // 詳細情報を取得してアップデート日をチェック
           for (const game of games) {
             try {
+              if (!game.appId) {
+                console.warn('Game missing appId, skipping:', game.title);
+                continue;
+              }
+              
               const details = await gplay.app({ appId: game.appId });
               
-              if (!details.updated) continue;
+              if (!details || !details.updated) {
+                console.warn(`No update info for ${game.appId}, skipping`);
+                continue;
+              }
               
               const updateDate = dayjs(details.updated);
               if (updateDate.isAfter(cutoffDate)) {
@@ -158,11 +166,28 @@ export class SocialGameCollector {
    * ゲームデータをフォーマット
    */
   formatGameData(game, type = 'new_release') {
+    // 日付を正規化（YYYY-MM-DD形式に変換）
+    const normalizeDate = (dateValue) => {
+      if (!dateValue) return null;
+      try {
+        // ミリ秒タイムスタンプの場合
+        if (typeof dateValue === 'number' && dateValue > 1000000000000) {
+          return dayjs(dateValue).format('YYYY-MM-DD');
+        }
+        // 文字列の場合
+        const parsed = dayjs(dateValue);
+        return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null;
+      } catch (e) {
+        console.warn(`Invalid date format: ${dateValue}`);
+        return null;
+      }
+    };
+    
     return {
       title: game.title,
       game_type: 'social',
-      release_date: game.released || game.updated || null,
-      update_date: type === 'update' ? (game.updated || null) : null,
+      release_date: normalizeDate(game.released || game.updated),
+      update_date: type === 'update' ? normalizeDate(game.updated) : null,
       developer: game.developer,
       publisher: game.developer, // Google Playにpublisher情報がないため
       description: this.cleanDescription(game.description),
