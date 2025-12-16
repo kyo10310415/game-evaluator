@@ -86,7 +86,12 @@ export class SocialGameCollector {
               
               const details = await gplay.app({ appId: game.appId });
               
-              if (!details || !details.updated) {
+              if (!details) {
+                console.warn(`Failed to fetch details for ${game.appId}, skipping`);
+                continue;
+              }
+              
+              if (!details.updated) {
                 console.warn(`No update info for ${game.appId}, skipping`);
                 continue;
               }
@@ -131,8 +136,8 @@ export class SocialGameCollector {
   isSocialGame(game) {
     if (!game) return false;
 
-    const title = (game.title || '').toLowerCase();
-    const description = (game.description || '').toLowerCase();
+    const title = String(game.title || '').toLowerCase();
+    const description = String(game.description || '').toLowerCase();
     
     // ソシャゲの特徴キーワード
     const socialKeywords = [
@@ -166,6 +171,11 @@ export class SocialGameCollector {
    * ゲームデータをフォーマット
    */
   formatGameData(game, type = 'new_release') {
+    if (!game) {
+      console.warn('formatGameData called with null/undefined game');
+      return null;
+    }
+    
     // 日付を正規化（YYYY-MM-DD形式に変換）
     const normalizeDate = (dateValue) => {
       if (!dateValue) return null;
@@ -184,17 +194,17 @@ export class SocialGameCollector {
     };
     
     return {
-      title: game.title,
+      title: game.title || 'Unknown',
       game_type: 'social',
       release_date: normalizeDate(game.released || game.updated),
       update_date: type === 'update' ? normalizeDate(game.updated) : null,
-      developer: game.developer,
-      publisher: game.developer, // Google Playにpublisher情報がないため
+      developer: game.developer || 'Unknown',
+      publisher: game.developer || 'Unknown', // Google Playにpublisher情報がないため
       description: this.cleanDescription(game.description),
-      image_url: game.icon || game.screenshots?.[0],
+      image_url: game.icon || (game.screenshots && game.screenshots[0]) || null,
       source_url: game.url || `https://play.google.com/store/apps/details?id=${game.appId}`,
-      google_play_id: game.appId,
-      rating: game.score,
+      google_play_id: game.appId || null,
+      rating: game.score || null,
       platforms: ['Android'],
       version: game.version || null,
       installs: game.installs || null,
