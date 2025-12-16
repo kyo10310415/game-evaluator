@@ -1,6 +1,8 @@
 import dayjs from 'dayjs';
 import dotenv from 'dotenv';
 import { RawgCollector } from '../src/collectors/rawg-collector.js';
+import { SteamCollector } from '../src/collectors/steam-collector.js';
+import { SocialGameCollector } from '../src/collectors/social-game-collector.js';
 import { TrendsCollector } from '../src/collectors/trends-collector.js';
 import { GameScraper } from '../src/collectors/scraper.js';
 import { AIEvaluator } from '../src/evaluators/ai-evaluator.js';
@@ -171,20 +173,37 @@ async function collectGameData() {
   const allGames = [];
   
   try {
-    // RAWG APIから収集
+    // 1. RAWG APIから収集（コンシューマーゲーム）
     const rawgCollector = new RawgCollector();
     
-    // 今後1ヶ月のゲーム
     const upcomingGames = await rawgCollector.getUpcomingGames();
     allGames.push(...upcomingGames);
     
     await rawgCollector.delay(1000);
     
-    // 過去1週間のゲーム
     const recentGames = await rawgCollector.getRecentlyReleasedGames();
     allGames.push(...recentGames);
     
-    // Webスクレイピング（オプション）
+    // 2. Steam APIからアップデート情報収集
+    console.log('Collecting Steam updates...');
+    const steamCollector = new SteamCollector();
+    const steamUpdates = await steamCollector.getRecentUpdates(7);
+    console.log(`Steam updates collected: ${steamUpdates.length}`);
+    allGames.push(...steamUpdates);
+    
+    // 3. Google Play Storeからソーシャルゲーム収集
+    console.log('Collecting social games from Google Play...');
+    const socialCollector = new SocialGameCollector();
+    
+    const newSocialGames = await socialCollector.getNewReleases(20);
+    console.log(`New social games collected: ${newSocialGames.length}`);
+    allGames.push(...newSocialGames);
+    
+    const updatedSocialGames = await socialCollector.getRecentlyUpdated(20, 7);
+    console.log(`Updated social games collected: ${updatedSocialGames.length}`);
+    allGames.push(...updatedSocialGames);
+    
+    // 4. Webスクレイピング（オプション）
     if (process.env.ENABLE_SCRAPING === 'true') {
       const scraper = new GameScraper();
       const scrapedGames = await scraper.scrapeAllSources();

@@ -29,9 +29,19 @@
                 </select>
             </div>
 
-            <button id="refreshBtn" class="btn btn-primary">
-                <i class="fas fa-sync-alt"></i> 更新
-            </button>
+            <div class="button-group">
+                <button id="runEvaluationBtn" class="btn btn-success">
+                    <i class="fas fa-play"></i> 評価を実行
+                </button>
+                <button id="refreshBtn" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> 更新
+                </button>
+            </div>
+        </div>
+
+        <div class="status-bar" id="statusBar" style="display: none;">
+            <i class="fas fa-info-circle"></i>
+            <span id="statusMessage"></span>
         </div>
 
         <div class="stats-container" id="statsContainer">

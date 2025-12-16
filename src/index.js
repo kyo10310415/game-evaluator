@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
 import dotenv from 'dotenv';
 import { testConnection } from './utils/database.js';
 import { EvaluationModel } from './models/evaluation-model.js';
@@ -129,6 +130,55 @@ app.get('/api/stats/distribution', async (req, res) => {
       error: 'Failed to fetch distribution'
     });
   }
+});
+
+/**
+ * 手動で評価プロセスを実行
+ */
+let isRunning = false;
+let runningProcess = null;
+
+app.post('/api/run-evaluation', (req, res) => {
+  if (isRunning) {
+    return res.status(409).json({
+      success: false,
+      error: 'Evaluation is already running'
+    });
+  }
+
+  isRunning = true;
+  
+  res.json({
+    success: true,
+    message: 'Evaluation process started',
+    status: 'running'
+  });
+
+  // バックグラウンドでスクリプト実行
+  const scriptPath = path.join(__dirname, '../scripts/collect-and-evaluate.js');
+  runningProcess = spawn('node', [scriptPath], {
+    detached: true,
+    stdio: 'ignore'
+  });
+
+  runningProcess.unref();
+
+  runningProcess.on('exit', (code) => {
+    isRunning = false;
+    runningProcess = null;
+    console.log(`Evaluation process exited with code ${code}`);
+  });
+});
+
+/**
+ * 評価プロセスの状態を取得
+ */
+app.get('/api/evaluation-status', (req, res) => {
+  res.json({
+    success: true,
+    is_running: isRunning,
+    timestamp: new Date().toISOString()
+  });
 });
 
 /**

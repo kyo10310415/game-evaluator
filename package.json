@@ -23,7 +23,8 @@
     "openai": "^4.20.1",
     "google-trends-api": "^4.9.2",
     "node-cron": "^3.0.3",
-    "dayjs": "^1.11.10"
+    "dayjs": "^1.11.10",
+    "google-play-scraper": "^9.1.3"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"

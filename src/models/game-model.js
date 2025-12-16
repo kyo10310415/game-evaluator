@@ -9,46 +9,133 @@ export class GameModel {
    */
   static async upsertGame(gameData) {
     try {
-      const sql = `
-        INSERT INTO games (
-          title, game_type, release_date, developer, publisher,
-          platforms, description, image_url, source_url, rawg_id
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-        ON CONFLICT (rawg_id) 
-        DO UPDATE SET
-          title = EXCLUDED.title,
-          release_date = EXCLUDED.release_date,
-          developer = EXCLUDED.developer,
-          publisher = EXCLUDED.publisher,
-          platforms = EXCLUDED.platforms,
-          description = EXCLUDED.description,
-          image_url = EXCLUDED.image_url,
-          updated_at = CURRENT_TIMESTAMP
-        RETURNING id
-      `;
-      
-      const values = [
-        gameData.title,
-        gameData.game_type,
-        gameData.release_date,
-        gameData.developer,
-        gameData.publisher,
-        gameData.platforms,
-        gameData.description,
-        gameData.image_url,
-        gameData.source_url,
-        gameData.rawg_id
-      ];
-      
-      const result = await query(sql, values);
-      return result.rows[0].id;
-    } catch (error) {
-      // rawg_idがnullの場合、タイトルベースで重複チェック
-      if (!gameData.rawg_id) {
+      // Steam/Google Play ID優先でupsert
+      if (gameData.steam_app_id) {
+        return await this.upsertBySteamId(gameData);
+      } else if (gameData.google_play_id) {
+        return await this.upsertByGooglePlayId(gameData);
+      } else if (gameData.rawg_id) {
+        return await this.upsertByRawgId(gameData);
+      } else {
         return await this.upsertGameByTitle(gameData);
       }
+    } catch (error) {
+      console.error('Error upserting game:', error.message);
       throw error;
     }
+  }
+
+  static async upsertByRawgId(gameData) {
+    const sql = `
+      INSERT INTO games (
+        title, game_type, release_date, developer, publisher,
+        platforms, description, image_url, source_url, rawg_id, rating
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      ON CONFLICT (rawg_id) 
+      DO UPDATE SET
+        title = EXCLUDED.title,
+        release_date = EXCLUDED.release_date,
+        developer = EXCLUDED.developer,
+        publisher = EXCLUDED.publisher,
+        platforms = EXCLUDED.platforms,
+        description = EXCLUDED.description,
+        image_url = EXCLUDED.image_url,
+        rating = EXCLUDED.rating,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING id
+    `;
+    
+    const values = [
+      gameData.title,
+      gameData.game_type,
+      gameData.release_date,
+      gameData.developer,
+      gameData.publisher,
+      gameData.platforms,
+      gameData.description,
+      gameData.image_url,
+      gameData.source_url,
+      gameData.rawg_id,
+      gameData.rating
+    ];
+    
+    const result = await query(sql, values);
+    return result.rows[0].id;
+  }
+
+  static async upsertBySteamId(gameData) {
+    const sql = `
+      INSERT INTO games (
+        title, game_type, release_date, developer, publisher,
+        platforms, description, image_url, source_url, steam_app_id
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      ON CONFLICT (steam_app_id) 
+      DO UPDATE SET
+        title = EXCLUDED.title,
+        developer = EXCLUDED.developer,
+        publisher = EXCLUDED.publisher,
+        description = EXCLUDED.description,
+        image_url = EXCLUDED.image_url,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING id
+    `;
+    
+    const values = [
+      gameData.title,
+      gameData.game_type,
+      gameData.release_date || gameData.update_date,
+      gameData.developer,
+      gameData.publisher,
+      gameData.platforms,
+      gameData.description,
+      gameData.image_url,
+      gameData.source_url,
+      gameData.steam_app_id
+    ];
+    
+    const result = await query(sql, values);
+    return result.rows[0].id;
+  }
+
+  static async upsertByGooglePlayId(gameData) {
+    const sql = `
+      INSERT INTO games (
+        title, game_type, release_date, developer, publisher,
+        platforms, description, image_url, source_url, google_play_id,
+        rating, installs, genre
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+      ON CONFLICT (google_play_id) 
+      DO UPDATE SET
+        title = EXCLUDED.title,
+        developer = EXCLUDED.developer,
+        publisher = EXCLUDED.publisher,
+        description = EXCLUDED.description,
+        image_url = EXCLUDED.image_url,
+        rating = EXCLUDED.rating,
+        installs = EXCLUDED.installs,
+        genre = EXCLUDED.genre,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING id
+    `;
+    
+    const values = [
+      gameData.title,
+      gameData.game_type,
+      gameData.release_date || gameData.update_date,
+      gameData.developer,
+      gameData.publisher,
+      gameData.platforms,
+      gameData.description,
+      gameData.image_url,
+      gameData.source_url,
+      gameData.google_play_id,
+      gameData.rating,
+      gameData.installs,
+      gameData.genre
+    ];
+    
+    const result = await query(sql, values);
+    return result.rows[0].id;
   }
 
   /**
