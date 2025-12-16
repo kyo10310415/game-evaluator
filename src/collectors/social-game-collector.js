@@ -35,7 +35,8 @@ export class SocialGameCollector {
 
           const filtered = games
             .filter(game => this.isSocialGame(game))
-            .map(game => this.formatGameData(game, 'new_release'));
+            .map(game => this.formatGameData(game, 'new_release'))
+            .filter(game => game !== null);
 
           allGames.push(...filtered);
           
@@ -86,8 +87,8 @@ export class SocialGameCollector {
               
               const details = await gplay.app({ appId: game.appId });
               
-              if (!details) {
-                console.warn(`Failed to fetch details for ${game.appId}, skipping`);
+              if (!details || typeof details !== 'object') {
+                console.warn(`Failed to fetch valid details for ${game.appId}, skipping`);
                 continue;
               }
               
@@ -99,6 +100,12 @@ export class SocialGameCollector {
               const updateDate = dayjs(details.updated);
               if (updateDate.isAfter(cutoffDate)) {
                 const formattedGame = this.formatGameData(details, 'update');
+                
+                if (!formattedGame) {
+                  console.warn(`Failed to format game data for ${game.appId}, skipping`);
+                  continue;
+                }
+                
                 formattedGame.update_date = updateDate.format('YYYY-MM-DD');
                 formattedGame.version = details.version;
                 
@@ -200,6 +207,27 @@ export class SocialGameCollector {
       }
     };
     
+    // 配列を安全に文字列に変換
+    const safeArrayToString = (value) => {
+      if (!value) return null;
+      if (Array.isArray(value)) {
+        return value.length > 0 ? value.join(', ') : null;
+      }
+      return String(value);
+    };
+    
+    // スクリーンショットを安全に取得
+    const getFirstScreenshot = () => {
+      try {
+        if (game.screenshots && Array.isArray(game.screenshots) && game.screenshots.length > 0) {
+          return game.screenshots[0];
+        }
+        return null;
+      } catch (e) {
+        return null;
+      }
+    };
+    
     return {
       title: game.title || 'Unknown',
       game_type: 'social',
@@ -208,14 +236,14 @@ export class SocialGameCollector {
       developer: game.developer || 'Unknown',
       publisher: game.developer || 'Unknown', // Google Playにpublisher情報がないため
       description: this.cleanDescription(game.description),
-      image_url: game.icon || (game.screenshots && game.screenshots[0]) || null,
+      image_url: game.icon || getFirstScreenshot() || null,
       source_url: game.url || `https://play.google.com/store/apps/details?id=${game.appId}`,
       google_play_id: game.appId || null,
       rating: game.score || null,
       platforms: ['Android'],
       version: game.version || null,
-      installs: game.installs || null,
-      genre: game.genre || null
+      installs: safeArrayToString(game.installs),
+      genre: safeArrayToString(game.genre)
     };
   }
 
@@ -223,23 +251,28 @@ export class SocialGameCollector {
    * 説明文をクリーンアップ
    */
   cleanDescription(text) {
-    if (!text) return null;
-    
-    // 安全な文字列変換
-    const safeText = String(text);
-    
-    // HTMLタグを削除
-    let cleaned = safeText.replace(/<[^>]*>/g, '');
-    
-    // 改行を整理
-    cleaned = cleaned.replace(/\n+/g, ' ').trim();
-    
-    // 最大500文字に制限
-    if (cleaned && cleaned.length > 500) {
-      cleaned = cleaned.substring(0, 497) + '...';
+    try {
+      if (!text) return null;
+      
+      // 安全な文字列変換
+      const safeText = String(text);
+      
+      // HTMLタグを削除
+      let cleaned = safeText.replace(/<[^>]*>/g, '');
+      
+      // 改行を整理
+      cleaned = cleaned.replace(/\n+/g, ' ').trim();
+      
+      // 最大500文字に制限
+      if (cleaned && typeof cleaned === 'string' && cleaned.length > 500) {
+        cleaned = cleaned.substring(0, 497) + '...';
+      }
+      
+      return cleaned || null;
+    } catch (error) {
+      console.error('Error in cleanDescription:', error.message);
+      return null;
     }
-    
-    return cleaned || null;
   }
 
   /**
