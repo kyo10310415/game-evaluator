@@ -4,6 +4,7 @@ let isEvaluationRunning = false;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.pathname === '/admin') document.getElementById('runEvaluationBtn').style.display = '';
   loadRankings();
   setupEventListeners();
   startStatusPolling();

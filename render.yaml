@@ -6,9 +6,15 @@ services:
     env: node
     region: singapore
     plan: free
-    buildCommand: npm install && npm run migrate
+    buildCommand: npm ci && npm run migrate
     startCommand: npm start
     envVars:
+      - key: GAME_ADMIN_USERNAME
+        sync: false
+      - key: GAME_ADMIN_PASSWORD
+        sync: false
+      - key: GAME_PUBLIC_ORIGIN
+        sync: false
       - key: NODE_ENV
         value: production
       - key: PORT
