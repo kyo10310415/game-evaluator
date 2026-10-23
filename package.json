@@ -9,7 +9,7 @@
     "dev": "nodemon src/index.js",
     "collect": "node scripts/collect-and-evaluate.js",
     "migrate": "node scripts/migrate.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test test/*.test.js"
   },
   "keywords": ["game", "release", "evaluation", "scraping", "ai"],
   "author": "",
